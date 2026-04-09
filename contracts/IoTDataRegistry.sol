@@ -61,7 +61,7 @@ contract IoTDataRegistry {
     function getDeviceDataHash(string calldata _deviceId, uint256 index) external view returns (bytes32) {
         (address owner, ) = registry.devices(_deviceId);
         require(owner != address(0), "Device not registered in the system!!");
-        require(index < _deviceData[_deviceId].length, "Invalid index");
+        require(index < _deviceData[_deviceId].length, "Data index out of bounds!!");
 
         return _deviceData[_deviceId][index].dataHash;
     }

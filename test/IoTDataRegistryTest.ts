@@ -115,4 +115,61 @@ describe("IoTDataRegistry", function () {
         await expect(dataRegistry.connect(user1).storeDataHash(deviceId, dataHash)).to.be.revertedWith("Only device owner can store data for the device!!");
     });
 
+    it("Should not allow unauthenticated device to store data which was previously registered and authenticated", async function () {
+        // Setup: deploy contracts, register + authenticate device, then de-authenticate.
+        const { deviceRegistry, dataRegistry, owner } = await deployContract();
+        
+        const deviceId = "sensor-1";
+        const dataHash = ethers.keccak256(ethers.toUtf8Bytes("temperature:25"));
+
+        // Register and authenticate the device first.
+        await deviceRegistry.connect(owner).registerIoTDevice(deviceId);
+        await deviceRegistry.connect(owner).authenticateIoTDevice(deviceId);
+
+        // De-authenticate the device to trigger failure condition.
+        await deviceRegistry.connect(owner).deauthenticateIoTDevice(deviceId);
+        
+        // Attempt to register data should fail
+        await expect(dataRegistry.connect(owner).storeDataHash(deviceId, dataHash)).to.be.revertedWith("Device is not authenticated!!");
+    });
+
+    it("Should allow retrieval of historical data for a deauthenticated device", async function () {
+        // Setup: deploy contracts, register + authenticate device, store data, then deauthenticate.
+        const { deviceRegistry, dataRegistry, owner } = await deployContract();
+        
+        const deviceId = "sensor-1";
+        const dataHash = ethers.keccak256(ethers.toUtf8Bytes("temperature:25"));
+
+        // Register and authenticate the device first.
+        await deviceRegistry.connect(owner).registerIoTDevice(deviceId);
+        await deviceRegistry.connect(owner).authenticateIoTDevice(deviceId);
+
+        // Store data for the authenticated device.
+        await dataRegistry.connect(owner).storeDataHash(deviceId, dataHash);
+
+        // Deauthenticate the device. Historical provenance should remain readable.
+        await deviceRegistry.connect(owner).deauthenticateIoTDevice(deviceId);
+        
+        const storedHash = await dataRegistry.connect(owner).getDeviceDataHash(deviceId, 0);
+        expect(storedHash).to.equal(dataHash);
+    });
+
+    it("Should not allow invalid index access when retrieving data hashes", async function () {
+        // Setup: deploy contracts, register + authenticate device, store one data hash.
+        const { deviceRegistry, dataRegistry, owner } = await deployContract();
+        
+        const deviceId = "sensor-1";
+        const dataHash = ethers.keccak256(ethers.toUtf8Bytes("temperature:25"));
+
+        // Register and authenticate the device first.
+        await deviceRegistry.connect(owner).registerIoTDevice(deviceId);
+        await deviceRegistry.connect(owner).authenticateIoTDevice(deviceId);
+
+        // Store one data hash for the authenticated device.
+        await dataRegistry.connect(owner).storeDataHash(deviceId, dataHash);
+        
+        // Attempt to retrieve a non-existent index should fail
+        await expect(dataRegistry.connect(owner).getDeviceDataHash(deviceId, 1)).to.be.revertedWith("Data index out of bounds!!");
+    });
+
 });

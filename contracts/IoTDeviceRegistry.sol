@@ -64,7 +64,7 @@ contract IoTDeviceRegistry {
   }
 
   /**
-   * @dev DeviceAuthenticate an authenticated device.
+   * @dev Deauthenticate an authenticated device.
    * Requirements:
    * - device must be registered.
    * - caller must be the device owner.
