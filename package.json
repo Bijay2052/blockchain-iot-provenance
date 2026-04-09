@@ -12,7 +12,7 @@
     "node": "npx hardhat node",
     "deploy:localhost": "npx hardhat run scripts/deploy.ts --network localhost",
     "clean": "npx hardhat clean",
-    "simulator": "cd iot-simulator && python main.py"
+    "simulator": "cd iot-simulator && ([ -x venv/bin/python ] && venv/bin/python main.py || python3 main.py)"
   },
   "engines": {
     "node": ">=20.6.0"
