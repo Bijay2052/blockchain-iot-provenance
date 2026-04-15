@@ -32,7 +32,7 @@ class IoTSimulator:
         for device in self.devices:
             device_id = device.device_id
             owner, authenticated = self.blockchain_client.get_device_info(device_id)
-            print(f"[SETUP] Device '{device_id}' - Owner: {owner}, Authenticated: {authenticated}")
+            print(f"[SETUP] Device '{device_id}', Authenticated: {authenticated}")
 
             if owner == "0x0000000000000000000000000000000000000000":
                 print(f"[SETUP] Registering {device_id}...")
@@ -44,7 +44,7 @@ class IoTSimulator:
             if not authenticated:
                 print(f"[SETUP] Authenticating {device_id}...")
                 self.blockchain_client.authenticate_device(device_id, self.account_address)
-                print(f"[OK] {device_id} authenticated")
+                print(f"[OK] {device_id} authenticated\n")
 
     def run_once(self):
         for device in self.devices:
