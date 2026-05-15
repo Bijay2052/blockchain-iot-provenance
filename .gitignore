@@ -22,5 +22,16 @@
 # dotenv environment variables file
 **/.env
 
-# pycache
-**/__pycache__/
+# virtual environments
+venv/
+env/
+.venv/
+iot-simulator/venv/
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# system files
+.DS_Store
